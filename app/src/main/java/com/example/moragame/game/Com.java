@@ -1,10 +1,22 @@
 package com.example.moragame.game;
 
+import android.view.View;
+
 import java.util.Random;
 
 public class Com extends Player{
+private OnActionListener listener;
     public void AI(){
+        try{
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         setMora(getRandomMora());
+        listener.onAction(GameState.PLAY_ROUND);
+    }
+    public Com(OnActionListener listener){
+        this.listener = listener;
     }
 
 

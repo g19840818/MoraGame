@@ -48,12 +48,14 @@
     </LinearLayout>
 
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/bottom_layout"
         android:layout_below="@+id/title_layout"
-        android:gravity="center">
+        >
+
+
 
         <GridLayout
             android:id="@+id/grid_layout"
@@ -61,7 +63,9 @@
             android:layout_height="wrap_content"
             android:columnCount="2"
             android:rowCount="2"
+            android:layout_gravity="center"
             android:useDefaultMargins="true">
+
 
             <ImageButton
                 android:id="@+id/scissors_ibn"
@@ -95,7 +99,16 @@
                 android:elevation="10dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/paper" />
-        </GridLayout>
 
-    </LinearLayout>
+        </GridLayout>
+        <TextView
+            android:id="@+id/count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="@dimen/super_large_font_size"
+            android:text="1:000" />
+    </FrameLayout>
+
+
 </RelativeLayout>

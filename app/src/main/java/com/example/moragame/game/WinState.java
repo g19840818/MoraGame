@@ -9,10 +9,10 @@ public enum WinState {
         if(player==com){
             return WinState.EVEN;
         }
-        if (player==Mora.SCISSOR && com==Mora.PAPER){
+        if ((player==Mora.SCISSOR && com==Mora.PAPER)||com==Mora.NONE){
             return WinState.PLAY_WIN;
         }
-        if (player==Mora.PAPER && com==Mora.SCISSOR){
+        if ((player==Mora.PAPER && com==Mora.SCISSOR)||player==Mora.NONE){
             return WinState.COM_WIN;
         }
         if (player.ordinal()>com.ordinal()){
