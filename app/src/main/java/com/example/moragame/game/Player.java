@@ -10,6 +10,13 @@ public class Player {
         wincount=0;
         mora=Mora.SCISSOR;
     }
+    public String getHart() {
+        String hart = "";
+        for (int i = 0; i < life; i++) {
+            hart += "❤";
+        }
+        return hart;
+    }
     public int getLife() {
         return life;
     }
@@ -40,4 +47,6 @@ public class Player {
     public void setLosecount(int losecount) {
         this.losecount = losecount;
     }
+
+
 }

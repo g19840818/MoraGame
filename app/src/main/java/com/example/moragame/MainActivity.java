@@ -19,8 +19,6 @@ import com.example.moragame.game.Player;
 import com.example.moragame.game.WinState;
 import com.example.moragame.game.OnActionListener;
 
-import org.w3c.dom.Text;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnActionListener, Runnable {
 
@@ -36,9 +34,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GameState gameState;
     private int gameMillisecond;
     private int targetMillisecond;
+    private int round;
+    private int combo;
+    private int hitCombo;
     private boolean gameCountDownFinsh;
     private Handler gameTimer;
     private TextView countText;
+    private TextView hartText;
+    private TextView winCountText;
+    private TextView hitComboText;
+    private TextView hitCount;
+    private TextView bigCountText;
+    private TextView roundText;
+
     boolean gameOver;
     boolean gaming;
 
@@ -49,30 +57,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startBtn = findViewById(R.id.start_btn);
         quitBtn = findViewById(R.id.quit_btn);
         comImg = findViewById(R.id.computer_img);
+        hartText = findViewById(R.id.hart_text);
+        countText = findViewById(R.id.count_text);
+        winCountText = findViewById(R.id.win_count_text);
+        bigCountText = findViewById(R.id.big_counter_text);
+        hitComboText = findViewById(R.id.hit_combo_text);
+        hitCount = findViewById(R.id.hit_count_text);
+        roundText = findViewById(R.id.round_text);
         scissorsIbn.setOnClickListener(this);
         rockIbn.setOnClickListener(this);
         paperIbn.setOnClickListener(this);
         startBtn.setOnClickListener(this);
         quitBtn.setOnClickListener(this);
+        bigCountText.setVisibility(View.INVISIBLE);
+//        hitCount.setVisibility(View.INVISIBLE);
     }
 
     public void initGame() {
         player = new Player();
         com = new Com(this);
         gameState = GameState.INIT_GAME;
-        gameOver=false;
-        gaming=false;
+        gameOver = false;
+        gaming = false;
+        round = 0;
+        hartText.setText(player.getHart());
+        winCountText.setText(String.valueOf(player.getWincount()));
     }
 
     public void startGame() {
-        if (gameOver){
+        if (gameOver) {
             initGame();
         }
+        roundText.setText("ROUND" + ++round);
         onAction(GameState.COMPUTER_ROUND);
         gameMillisecond = 0;
         targetMillisecond = 1000;
         gameCountDownFinsh = false;
     }
+
 
     public void onAction(GameState state) {
         gameState = state;
@@ -90,14 +112,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 WinState winState = WinState.getWinState(
                         player.getMora(), com.getMora()
                 );
-                if (winState==WinState.COM_WIN){
-                    player.setLife(player.getLife()-1);
-                    Log.d(TAG,String.valueOf(player.getLife()));
-                    if (player.getLife()==0){
-                        gameOver=true;
-                        return;
+                if (winState == WinState.COM_WIN) {
+                    combo = 0;
+                    player.setLife(player.getLife() - 1);
+                    hartText.setText(player.getHart());
+                } else if (winState == WinState.PLAY_WIN) {
+                    player.setWincount(player.getWincount() + 1);
+                    winCountText.setText(String.valueOf(player.getWincount()));
+                    combo++;
+                    hitCount.setVisibility(View.VISIBLE);
+                    hitCount.setText(combo+getResources().getString(R.string.hit));
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(800);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hitCount.setVisibility(View.INVISIBLE);
+                                }
+                            });
+                        }
+                    }).start();
+                    if (combo > hitCombo) {
+                        hitCombo = combo;
+                        hitComboText.setText(getResources().getString(R.string.hit_combo) + "\n" + hitCombo);
                     }
+                }else if (winState == winState.EVEN) {
+                    combo = 0;
                 }
+                hitCount.setText(combo + getResources().getString(R.string.hit));
+                Log.d(TAG, String.valueOf(player.getLife()));
+                if (player.getLife() == 0) {
+                    gameOver = true;
+                    gaming = false;
+                    return;
+                }
+
                 Log.d(TAG, winState.toString());
                 onAction(GameState.START_GAME);
                 break;
@@ -140,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.start_btn:
                 onAction(GameState.START_GAME);
                 Log.d(TAG, getResources().getString(R.string.start));
+
                 break;
             case R.id.quit_btn:
                 Log.d(TAG, getResources().getString(R.string.quit));
@@ -157,18 +214,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        gameMillisecond+=10;
-        if(gameMillisecond>targetMillisecond){
-            gameMillisecond=targetMillisecond;
-            gameCountDownFinsh=true;
+        gameMillisecond += 10;
+        if (gameMillisecond > targetMillisecond) {
+            gameMillisecond = targetMillisecond;
+            gameCountDownFinsh = true;
             player.setMora(Mora.NONE);
             onAction(GameState.CHECK_WIN_STATE);
         }
-        int sec=(targetMillisecond-gameMillisecond)/1000;
-        int ms=(targetMillisecond-gameMillisecond)%1000;
-        String time=String.format("%d:%03d",sec,ms);
+        int sec = (targetMillisecond - gameMillisecond) / 1000;
+        int ms = (targetMillisecond - gameMillisecond) % 1000;
+        String time = String.format("%d:%03d", sec, ms);
         countText.setText(time);
-        gameTimer.postDelayed(this,0);
+        gameTimer.postDelayed(this, 0);
     }
 
 }
