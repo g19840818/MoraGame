@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView hitCount;
     private TextView bigCountText;
     private TextView roundText;
+    private int countSecond;
 
     boolean gameOver;
     boolean gaming;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         winCountText = findViewById(R.id.win_count_text);
         bigCountText = findViewById(R.id.big_counter_text);
         hitComboText = findViewById(R.id.hit_combo_text);
+        bigCountText = findViewById(R.id.big_counter_text);
         hitCount = findViewById(R.id.hit_count_text);
         roundText = findViewById(R.id.round_text);
         scissorsIbn.setOnClickListener(this);
@@ -99,6 +101,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onAction(GameState state) {
         gameState = state;
         switch (state) {
+            case INIT_GAME:
+                initGame();
+                bigCountText.setText(String.valueOf(countSecond));
+                findViewById(R.id.grid_layout).setVisibility(View.INVISIBLE);
+                bigCountText.setVisibility(View.VISIBLE);
+                gameTimer = new Handler(Looper.myLooper());
+                gameTimer.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        countSecond--;
+                        if (countSecond == 0) {
+                            gameTimer.removeCallbacks(this);
+                            bigCountText.setVisibility(View.INVISIBLE);
+                            findViewById(R.id.grid_layout).setVisibility(View.VISIBLE);
+                            onAction(GameState.START_GAME);
+                            return;
+                        }
+                        bigCountText.setText(String.valueOf(countSecond));
+                        gameTimer.postDelayed(this, 1000);
+                    }
+                });
+                break;
             case START_GAME:
                 startGame();
                 break;
@@ -121,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     winCountText.setText(String.valueOf(player.getWincount()));
                     combo++;
                     hitCount.setVisibility(View.VISIBLE);
-                    hitCount.setText(combo+getResources().getString(R.string.hit));
+                    hitCount.setText(combo + getResources().getString(R.string.hit));
 
                     new Thread(new Runnable() {
                         @Override
@@ -143,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         hitCombo = combo;
                         hitComboText.setText(getResources().getString(R.string.hit_combo) + "\n" + hitCombo);
                     }
-                }else if (winState == winState.EVEN) {
+                } else if (winState == winState.EVEN) {
                     combo = 0;
                 }
                 hitCount.setText(combo + getResources().getString(R.string.hit));
@@ -194,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 onAction(GameState.CHECK_WIN_STATE);
                 break;
             case R.id.start_btn:
+
                 onAction(GameState.START_GAME);
                 Log.d(TAG, getResources().getString(R.string.start));
 
